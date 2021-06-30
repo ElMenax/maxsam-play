@@ -19,7 +19,6 @@ export const useBeerApi = () => {
               image: item.image_url,
             }))
           );
-          //console.log(payload);
         },
         (error) => console.log('Something went wrong')
       );
