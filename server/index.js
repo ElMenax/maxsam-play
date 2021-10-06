@@ -3,6 +3,7 @@ const { graphqlHTTP } = require('express-graphql');
 const axios = require('axios');
 const cors = require('cors');
 const { graphql, buildSchema } = require('graphql');
+const camelize = require('camelize');
 
 const app = express();
 const port = 3001;
@@ -19,9 +20,18 @@ const schema = buildSchema(`
     image: BeerImage
     alcohol: Float
   }
+  type Weather {
+    weatherStateName: String,
+    applicableDate: String,
+    theTemp: Float,
+    predictability: Int
+  }
   type Query {
     beers: [Beer]
     beer(id: Int!): Beer
+    weather: Weather
+    beerByWeather: [Beer]
+    weatherForecast(offset: Int): Weather
   }
 `);
 
@@ -33,6 +43,29 @@ const root = {
   beer: async ({ id }) => {
     const beers = await getBeers();
     return beers.find((b) => b.id === id);
+  },
+  weather: async () => {
+    const weather = await getWeathers();
+
+    return weather[0];
+  },
+  weatherForecast: async ({ offset }) => {
+    if (offset < 0 || offset >= 5) {
+      return null;
+    }
+    const weather = await getWeathers();
+
+    return weather[offset];
+  },
+  beerByWeather: async () => {
+    const beers = await getBeers();
+    const weather = await getWeathers();
+
+    return beers.filter((b) => {
+      if (['hr', 't', 'h', 'hc'].includes(weather.weatherStateAbbr))
+        return b.alcohol >= 7;
+      return b.alcohol < 7;
+    });
   },
 };
 
@@ -49,13 +82,13 @@ const getBeers = () => {
   });
 };
 
-const getWeather = () => {
+const getWeathers = () => {
   const weatherPriomise = axios.get(
     'https://www.metaweather.com/api/location/906057/'
   );
 
   return weatherPriomise.then(({ data }) => {
-    return data.consolidated_weather[0];
+    return camelize(data).consolidatedWeather;
   });
 };
 
