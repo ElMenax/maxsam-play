@@ -1,15 +1,35 @@
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import './App.css';
-import { useBeerApi } from './hooks/beer-api';
-import BeerContext from './context/beers';
 import BeerList from './components/BeerList';
+import { BeerOfTheDay } from './components/BeerOfTheDay';
+import BeerContext from './context/beers';
+import { useBeerApi } from './hooks/beer-api';
 
-function App() {
-  const { beers } = useBeerApi();
+const client = new ApolloClient({
+  uri: 'http://localhost:3001/graphql',
+  cache: new InMemoryCache(),
+});
+
+const BeerApp = () => {
+  const { data, loading, error } = useBeerApi();
+
+  if (loading) return <div>Loading...</div>;
+
+  if (error) return <div>Error while fetching beers...</div>;
 
   return (
-    <BeerContext.Provider value={beers}>
+    <BeerContext.Provider value={data.beers}>
       <BeerList />
+      <BeerOfTheDay />
     </BeerContext.Provider>
+  );
+};
+
+function App() {
+  return (
+    <ApolloProvider client={client}>
+      <BeerApp />
+    </ApolloProvider>
   );
 }
 

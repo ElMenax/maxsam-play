@@ -1,20 +1,20 @@
-import { useEffect, useState } from 'react';
+import { gql, useQuery } from '@apollo/client';
+
+const BEERS = gql`
+  query {
+    beers {
+      id
+      name
+      alcohol
+      image {
+        url
+      }
+    }
+  }
+`;
 
 export const useBeerApi = () => {
-  const [beers, setBeers] = useState([]);
+  const { loading, error, data } = useQuery(BEERS);
 
-  useEffect(() => {
-    const fetchMyBeers = async () => {
-      return await fetch('http://localhost:3001/beers');
-    };
-
-    fetchMyBeers()
-      .then((payload) => payload.json())
-      .then(
-        (payload) => setBeers(payload),
-        (error) => console.log('Something went wrong')
-      );
-  }, []);
-
-  return { beers };
+  return { data, loading, error };
 };

@@ -1,4 +1,4 @@
-import React, { useContext, useReducer, useEffect } from 'react';
+import React, { useContext, useEffect, useReducer } from 'react';
 import BeerContext from '../context/beers';
 
 function reducer(state, action) {
@@ -40,7 +40,15 @@ const BeerList = () => {
   };
 
   return (
-    <ul>
+    <ul
+      style={{
+        maxHeight: '400px',
+        overflowY: 'scroll',
+        border: '1px solid black',
+        padding: '20px',
+        boxSizing: 'border-box',
+      }}
+    >
       {beers.map((beer) => (
         <li
           key={beer.id}

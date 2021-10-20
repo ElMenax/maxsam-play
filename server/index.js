@@ -30,7 +30,7 @@ const schema = buildSchema(`
     beers: [Beer]
     beer(id: Int!): Beer
     weather: Weather
-    beerByWeather: [Beer]
+    beersByWeather: [Beer]
     weatherForecast(offset: Int): Weather
   }
 `);
@@ -57,7 +57,7 @@ const root = {
 
     return weather[offset];
   },
-  beerByWeather: async () => {
+  beersByWeather: async () => {
     const beers = await getBeers();
     const weather = await getWeathers();
 
